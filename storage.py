@@ -118,28 +118,55 @@ class IrodsStorage(Storage):
         else:
             self.session.run("imeta", None, 'set', '-C', name, attName, attVal)
 
-    def getAVU(self, name, attName):
+    def getAVU(self, name, attName=None, type='-C'):
         """
-        set AVU on resource collection - this is used for on-demand bagging by indicating
-        whether the resource has been modified via AVU pairs
+        get AVU for attName or all AVUs if attName is None, on resource collection (by default) or on other types
+        such as passing in '-d' for type for data objects
 
         Parameters:
         :param
-        name: the resource collection name to set AVU.
-        attName: the attribute name to set
-        attVal: the attribute value to set
-        attUnit: the attribute Unit to set, default is None, but can be set to
-        indicate additional info
+        name: the name of the type (e.g., collection or data object) to get AVU for.
+        attName: the attribute name to get AVU for, if None, all AVU pairs are returned as a dict
+        type: default is '-C' which means collection. Other options are '-d' for data object, '-u' for user,
+        -R for resource
         """
 
         # SessionException will be raised from run() in icommands.py
-        stdout = self.session.run("imeta", None, 'ls', '-C', name, attName)[0].split("\n")
-        ret_att = stdout[1].strip()
-        if ret_att == 'None':  # queried attribute does not exist
-            return None
+        if attName:
+            stdout = self.session.run("imeta", None, 'ls', type, name, attName)[0].split("\n")
+            ret_att = stdout[1].strip()
+            if ret_att == 'None':  # queried attribute does not exist
+                return None
+            else:
+                vals = stdout[2].split(":")
+                return vals[1].strip()
         else:
-            vals = stdout[2].split(":")
-            return vals[1].strip()
+            # get all AVUs and return as a dict
+            avu_dict={}
+            stdout = self.session.run("imeta", None, 'ls', type, name)[0].split("\n")
+            # stdout is a list in the following format:
+            # [
+            #    'AVU defined for ...',
+            #    'attribute: att1',
+            #    'value: val1',
+            #    'units: unit1',
+            #    '----'
+            #    ... continue to the next AVU pairs if any
+            # ]
+            idx = 1
+            while idx < len(stdout):
+                att_idx = idx
+                val_idx = idx + 1
+                ret_att = stdout[att_idx].strip()
+                atts = ret_att.split(':')
+                att = atts[1].strip()
+                ret_val = stdout[val_idx].strip()
+                vals = ret_val.split(':')
+                val = vals[1].strip()
+                avu_dict[att] = val
+                idx += 4
+            return avu_dict
+
 
     def copyFiles(self, src_name, dest_name):
         """
