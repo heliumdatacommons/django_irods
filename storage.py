@@ -158,6 +158,9 @@ class IrodsStorage(Storage):
                 att_idx = idx
                 val_idx = idx + 1
                 ret_att = stdout[att_idx].strip()
+                if ret_att == 'None':
+                    return avu_dict
+
                 atts = ret_att.split(':')
                 att = atts[1].strip()
                 ret_val = stdout[val_idx].strip()
