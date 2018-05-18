@@ -67,7 +67,7 @@ def download(request, path, rest_call=False, use_async=True, *args, **kwargs):
             bag_file_name = res_id + '.zip'
             bag_full_path = os.path.join('bags', bag_file_name)
             if not istorage.exists(bag_full_path):
-                hs_bagit.create_bdbag(res)
+                hs_bagit.create_bag(res)
 
     resource_cls = check_resource_type(res.resource_type)
 
@@ -108,29 +108,3 @@ def download(request, path, rest_call=False, use_async=True, *args, **kwargs):
 def rest_download(request, path, *args, **kwargs):
     # need to have a separate view function just for REST API call
     return download(request, path, rest_call=True, *args, **kwargs)
-
-
-def check_task_status(request, task_id=None, *args, **kwargs):
-    '''
-    A view function to tell the client if the asynchronous create_bag_by_irods()
-    task is done and the bag file is ready for download.
-    Args:
-        request: an ajax request to check for download status
-    Returns:
-        JSON response to return result from asynchronous task create_bag_by_irods
-    '''
-    if not task_id:
-        task_id = request.POST.get('task_id')
-    result = create_bag_by_irods.AsyncResult(task_id)
-    if result.ready():
-        return HttpResponse(json.dumps({"status": result.get()}),
-                            content_type="application/json")
-    else:
-        return HttpResponse(json.dumps({"status": None}),
-                            content_type="application/json")
-
-
-@api_view(['GET'])
-def rest_check_task_status(request, task_id, *args, **kwargs):
-    # need to have a separate view function just for REST API call
-    return check_task_status(request, task_id, *args, **kwargs)
