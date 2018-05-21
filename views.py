@@ -13,9 +13,9 @@ from django.core.exceptions import PermissionDenied
 
 from hs_core.views.utils import authorize, ACTION_TO_AUTHORIZE
 from hs_core.hydroshare.resource import FILE_SIZE_LIMIT
-from hs_core.signals import pre_download_file, pre_check_bag_flag
+from hs_core.signals import pre_download_file
 from hs_core.hydroshare import check_resource_type
-from hs_core.hydroshare import hs_bagit
+from hs_core.hydroshare.hs_bagit import create_bag
 
 from . import models as m
 from .icommands import Session, GLOBAL_SESSION
@@ -61,7 +61,7 @@ def download(request, path, rest_call=False, use_async=True, *args, **kwargs):
         bag_modified = istorage.getAVU(res_id, 'bag_modified')
 
         if bag_modified:
-            hs_bagit.create_bag(res)
+            create_bag(res)
 
     resource_cls = check_resource_type(res.resource_type)
 
