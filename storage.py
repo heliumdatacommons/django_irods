@@ -98,6 +98,21 @@ class IrodsStorage(Storage):
         # SessionException will be raised from run() in icommands.py
         self.session.run("ibun", None, '-cDzip', '-f', out_name, in_name)
 
+    def set_access_control(self, permission, user_or_group_name, coll_name, recursive=True):
+        """
+        modify access to iRODS collection
+        :param permission: can only be null, read, write, or own.
+        :param user_or_group_name: iRODS username or groupname to be assigned with permission
+        :param coll_name: iRODS collection name or data object to assign permission to.
+        :return:
+        """
+        if permission not in ('null', 'read', 'write', 'own'):
+            raise ValueError('bad input argument: only null, read, write, or own for permission is allowed.')
+        if recursive:
+            self.session.run("ichmod", None, '-r', permission, user_or_group_name, coll_name)
+        else:
+            self.session.run("ichmod", None, permission, user_or_group_name, coll_name)
+
     def setAVU(self, name, attName, attVal, attUnit=None):
         """
         set AVU on resource collection - this is used for on-demand bagging by indicating
