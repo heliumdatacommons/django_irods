@@ -59,8 +59,7 @@ def download(request, path, rest_call=False, use_async=True, *args, **kwargs):
                        'if there is no environment object')
     if istorage.exists(res_id):
         bag_modified = istorage.getAVU(res_id, 'bag_modified')
-
-        if bag_modified:
+        if bag_modified is None or bag_modified.lower() == "true":
             create_bag(res)
 
     resource_cls = check_resource_type(res.resource_type)
