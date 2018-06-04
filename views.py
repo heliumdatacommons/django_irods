@@ -39,7 +39,10 @@ def download(request, path, rest_call=False, use_async=True, *args, **kwargs):
         if rest_call:
             raise PermissionDenied(content_msg)
         else:
-            response.content = "<h1>" + content_msg + "</h1>"
+            signin_html = '</h1><div class="col-xs-12"><h2 class="page-title">' \
+                          '<a href="/oauth_request/"><span class ="glyphicon glyphicon-log-in"></span>' \
+                          'Sign In</a></h2>'
+            response.content = '<h1>' + content_msg + signin_html
             return response
 
     if res.resource_federation_path:
