@@ -57,8 +57,21 @@ def download(request, path, rest_call=False, use_async=True, *args, **kwargs):
     else:
         raise KeyError('settings must have IRODS_GLOBAL_SESSION set '
                        'if there is no environment object')
+
     if istorage.exists(res_id):
         bag_modified = istorage.getAVU(res_id, 'bag_modified')
+        # make sure if bag_modified is not set to true, we still recreate the bag if the
+        # bag file does not exist for some reason to resolve the error to download a nonexistent
+        # bag when bag_modified is false due to the flag being out-of-sync with the real bag status
+
+        if bag_modified is None or bag_modified.lower() == "false":
+            # check whether the bag file exists
+            bag_file_name = res_id + '.zip'
+            bag_full_path = os.path.join('bags', bag_file_name)
+
+            if not istorage.exists(bag_full_path):
+                bag_modified = 'true'
+
         if bag_modified is None or bag_modified.lower() == "true":
             create_bag(res)
 
