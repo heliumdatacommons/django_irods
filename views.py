@@ -22,6 +22,7 @@ from .icommands import Session, GLOBAL_SESSION
 
 
 def download(request, path, rest_call=False, use_async=True, *args, **kwargs):
+
     split_path_strs = path.split('/')
     is_bag_download = False
     if split_path_strs[0] == 'bags':
@@ -41,6 +42,10 @@ def download(request, path, rest_call=False, use_async=True, *args, **kwargs):
             response.content = "<h1>" + content_msg + "</h1>"
             return response
 
+    if not is_bag_download and "/data" not in path:
+        idx_sep = path.find('/')
+        path = path[idx_sep:]
+
     istorage = IrodsStorage()
 
     if 'environment' in kwargs:
@@ -58,7 +63,7 @@ def download(request, path, rest_call=False, use_async=True, *args, **kwargs):
         raise KeyError('settings must have IRODS_GLOBAL_SESSION set '
                        'if there is no environment object')
 
-    if istorage.exists(res_id):
+    if istorage.exists(res_id) and is_bag_download:
         bag_modified = istorage.getAVU(res_id, 'bag_modified')
         # make sure if bag_modified is not set to true, we still recreate the bag if the
         # bag file does not exist for some reason to resolve the error to download a nonexistent
