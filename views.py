@@ -120,5 +120,13 @@ def download(request, path, rest_call=False, use_async=True, *args, **kwargs):
 
 @api_view(['GET'])
 def rest_download(request, path, *args, **kwargs):
+    """
+    download a resource bag or file
+    :param request:
+    :param path:
+    :param args:
+    :param kwargs:
+    :return:
+    """
     # need to have a separate view function just for REST API call
     return download(request, path, rest_call=True, *args, **kwargs)
