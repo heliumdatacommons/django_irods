@@ -1,6 +1,5 @@
 from uuid import uuid4
 import os
-import json
 import mimetypes
 
 from rest_framework.decorators import api_view
@@ -8,7 +7,7 @@ from rest_framework.decorators import api_view
 from django_irods import icommands
 from django_irods.storage import IrodsStorage
 from django.conf import settings
-from django.http import HttpResponse, FileResponse, HttpResponseRedirect
+from django.http import HttpResponse, FileResponse
 from django.core.exceptions import PermissionDenied
 
 from hs_core.views.utils import authorize, ACTION_TO_AUTHORIZE
