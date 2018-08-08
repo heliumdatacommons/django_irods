@@ -312,3 +312,8 @@ class IrodsStorage(Storage):
         if self.exists(name):
             raise ValidationError(str.format("File {} already exists.", name))
         return name
+
+    def get_checksum(self, name):
+        stdout = self.session.run("ichksum", None, "-f", "-n", "0", name)[0].split()
+        return stdout[1]
+
