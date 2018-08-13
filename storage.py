@@ -314,6 +314,6 @@ class IrodsStorage(Storage):
         return name
 
     def get_checksum(self, name):
-        stdout = self.session.run("ichksum", None, "-f", "-n", "0", name)[0].split()
+        stdout = self.session.run("ichksum", None, name)[0].split()
         return stdout[1]
 
