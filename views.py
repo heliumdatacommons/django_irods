@@ -98,23 +98,13 @@ def download(request, path, rest_call=False, use_async=True, *args, **kwargs):
     # retrieve file size to set up Content-Length header
     stdout = session.run("ils", None, "-l", path)[0].split()
     flen = int(stdout[3])
-    if flen <= FILE_SIZE_LIMIT:
-        options = ('-',)  # we're redirecting to stdout.
-        proc = session.run_safe('iget', None, path, *options)
-        response = FileResponse(proc.stdout, content_type=mtype)
-        response['Content-Disposition'] = 'attachment; filename="{name}"'.format(
-            name=path.split('/')[-1])
-        response['Content-Length'] = flen
-        return response
-    else:
-        content_msg = "File larger than 1GB cannot be downloaded directly via HTTP. " \
-                      "Please download the large file via iRODS clients."
-        response = HttpResponse(status=403)
-        if rest_call:
-            response.content = content_msg
-        else:
-            response.content = "<h1>" + content_msg + "</h1>"
-        return response
+    options = ('-',)  # we're redirecting to stdout.
+    proc = session.run_safe('iget', None, path, *options)
+    response = FileResponse(proc.stdout, content_type=mtype)
+    response['Content-Disposition'] = 'attachment; filename="{name}"'.format(
+        name=path.split('/')[-1])
+    response['Content-Length'] = flen
+    return response
 
 
 @api_view(['GET'])
