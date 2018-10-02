@@ -316,8 +316,8 @@ class IrodsStorage(Storage):
     def get_checksum(self, name):
         stdout = self.session.run("ils", None, "-L", name)[0].split()
         for a in stdout:
-            if a.startswith('sha'):
-                return a[5:]
+            if a.startswith('sha') or a.startswith('md5'):
+                return a
         return None
 
     def checksum(self, name):
